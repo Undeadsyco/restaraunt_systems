@@ -1,0 +1,1 @@
+export { default as LockScreenForm } from './lockScreenForm';

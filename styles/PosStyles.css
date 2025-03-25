@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --btn-color-primary: #d1d5db;
+  --btn-color-secondary: #6b7280;
+  --btn-color-tertiary: #374151;
+
+  --CYO-pizza-btn-primary: 134, 239, 172;
+  --CYO-pizza-btn-secondary: 34, 197, 94;
+  --CYO-pizza-btn-tertiary: 21, 128, 61;
+}
+
+@layer base {
+  .duration-50 {
+    transition-duration: 50ms;
+  }
+
+  .btn-default {
+    --btn-color-primary: #d1d5db;
+    --btn-color-secondary: #6b7280;
+    --btn-color-tertiary: #374151;
+  }
+
+  .size-btn {
+    --btn-color-primary: #fcd34d;
+    --btn-color-secondary: #f59e0b;
+    --btn-color-tertiary: #b45309;
+  }
+
+  .topping-preview-btn {
+    --btn-color-primary: #f2bd68;
+    --btn-color-secondary: #91713f;
+    --btn-color-tertiary: #544226;
+  }
+
+  .to-toppings-btn {
+    --btn-color-primary: #6ee7b7;
+    --btn-color-secondary: #10b981;
+    --btn-color-tertiary: #047857;
+  }
+
+  .CYO-pizza-btn {
+    background-color: rgb(var(--CYO-pizza-btn-primary));
+    box-shadow: 0 5px 0 0 rgb(var(--CYO-pizza-btn-secondary)), 0 10px 0 0 rgb(var(--CYO-pizza-btn-tertiary));
+    border-color: rgb(var(--CYO-pizza-btn-secondary));
+  }
+
+  .signature-btn {
+    --btn-color-primary: #fca5a5;
+    --btn-color-secondary: #ef4444;
+    --btn-color-tertiary: #b91c1c;
+  }
+
+  .seasonal-btn {
+    --btn-color-primary: #a9b5c6;
+    --btn-color-secondary: #919aa8;
+    --btn-color-tertiary: #656b75;
+  }
+
+  .other-btn {
+    --btn-color-primary: #facc15;
+    --btn-color-secondary: #ca8a04;
+    --btn-color-tertiary: #854d0e;
+  }
+
+  .delight-btn {
+    --btn-color-primary: #a8b0fa;
+    --btn-color-secondary: #8c93d1;
+    --btn-color-tertiary: #595d85;
+  }
+
+  .sauce-btn {
+    --btn-color-primary: #f49ab3;
+    --btn-color-secondary: #bd778a;
+    --btn-color-tertiary: #6e4550;
+  }
+
+  .cheese-btn {
+    --btn-color-primary: #f6a22c;
+    --btn-color-secondary: #bd8422;
+    --btn-color-tertiary: #6e4d15;
+  }
+
+  .meat-btn {
+    --btn-color-primary: #fa6666;
+    --btn-color-secondary: #d95757;
+    --btn-color-tertiary: #8f3939;
+  }
+
+  .produce-btn {
+    --btn-color-primary: #80c624;
+    --btn-color-secondary: #63991c;
+    --btn-color-tertiary: #3d5e11;
+  }
+
+  .seasoning-btn {
+    --btn-color-primary: #a0fae9;
+    --btn-color-secondary: #89d6c8;
+    --btn-color-tertiary: #659e94;
+  }
+
+  .close-btn {
+    --btn-color-primary: #85100a;
+    --btn-color-secondary: #b3150c;
+    --btn-color-tertiary: #fc1c0f;
+  }
+}
+
+@layer components {
+  .pos-btn {
+    @apply 
+      text-black
+      font-bold
+      bg-[var(--btn-color-primary)]
+      shadow-[0_5px_0_0_var(--btn-color-secondary),0_10px_0_0_var(--btn-color-tertiary)]
+      cursor-pointer
+      border
+      border-[var(--btn-color-secondary)]
+      rounded-full
+      select-none
+      transition-all
+      ease-in-out
+      duration-[50ms]
+
+      active:transform
+      active:translate-y-1
+      active:bg-[var(--btn-color-secondary)]
+      active:border-[var(--btn-color-tertiary)]
+      active:shadow-[0_5px_0_0_var(--btn-color-tertiary)]
+      active:border-b-0
+  }
+
+  /* order item */
+  .orderItem {
+    @apply
+    /* h-10 */
+    py-2 my-1 text-xs
+  }
+
+  .orderItemActive {
+    @apply p-2 bg-slate-300
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
