@@ -15,8 +15,8 @@ export default async function PizzaSection({ section }: { section: DataBase.Menu
 
   const className = section.name.match(/Delight/)
     ? "delight-btn"
-    : section.name.match(/Seasonal/)
-      ? "seasonal-btn"
+    : section.name.match(/Special/)
+      ? "special-btn"
       : section.name.match(/Other/)
         ? "other-btn"
         : "signature-btn";

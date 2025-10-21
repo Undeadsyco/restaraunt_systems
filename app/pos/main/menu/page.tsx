@@ -10,7 +10,7 @@ const getSections = async () => {
   const sections = await SectionController.getAll();
   if (!sections) throw new Error("Unable to find sections");
   
-  return JSON.stringify(sections.filter(s => s.name !== "Stuffed"));
+  return JSON.stringify(sections.filter(s => s.name !== "Deals" && s.name !== "Stuffed"));
 }
 
 export default async function Menu() {
