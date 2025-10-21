@@ -69,8 +69,7 @@ declare namespace POS {
 
     type PosState = {
       user: Employee | undefined;
-      currentSize: string;
-      currentPizza: (Omit<DataBase.Menu.IPizza, "toppings"> & { toppings: DataBase.Menu.ITopping[] }) | undefined;
+      section: string;
       orders: Order.Order[];
       orderIndex: number;
       modal: {
