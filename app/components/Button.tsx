@@ -1,17 +1,17 @@
 "use client"
 
-import { MouseEventHandler, ReactNode } from "react";
+import type { BtnProps } from "@/types";
 
-export type BtnProps = {
-  type?: "submit" | "reset" | "button" | undefined;
-  text?: string;
-  action?: (...args: any[]) => any;
-  className?: string;
-}
-
-const Btn = ({ type, text, action, className }: BtnProps) => (
-  <button className={className} type={type ?? "button"} onClick={action}>
-    <span>{text}</span>
+const Btn = ({ type, text, disabled, className, children, onClick, onMouseDown, onMouseUp }: BtnProps) => (
+  <button
+    className={`disabled:opacity-10 ${className}`}
+    type={type ?? "button"}
+    disabled={disabled}
+    onClick={onClick}
+    onMouseDown={onMouseDown}
+    onMouseUp={onMouseUp}
+  >
+    {children ?? <span className="text-inherit">{text}</span>}
   </button>
 );
 

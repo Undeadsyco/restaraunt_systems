@@ -1,12 +1,10 @@
 "use client"
-
+// Components
 import { Btn } from "@/app/components";
-import { BtnProps } from "@/app/components/Button";
+// Types
+import type { BtnProps } from "@/types";
 
-export type PosBtnProps = BtnProps & {
-};
-
-const PosBtn = ({ className, type, text = "", action }: PosBtnProps) => {
+const PosBtn = ({ className, type, text = "", onClick, children }: BtnProps) => {
   const textSize = text?.split(" ").length > 2
     ? "text-xs"
     : text?.split(" ").length > 1
@@ -16,7 +14,7 @@ const PosBtn = ({ className, type, text = "", action }: PosBtnProps) => {
   
   return (
     <Btn
-      {...{ type, action, text }}
+      {...{ type, onClick, text, children }}
       className={`pos-btn btn-default ${className} ${textSize}`}
     />
   );

@@ -3,27 +3,11 @@
 import { ReactNode } from "react";
 
 type mapperProps = {
-  Component?: JSX.ElementType,
-  data?: any[];
-  element?: JSX.ElementType;
-  length?: number
+  Component: JSX.ElementType,
+  data: any[];
 }
 
-const ComponentMapper = ({ Component, element, data, length }: mapperProps) => {
-  if (Component && data) return (
-    Array.from(data, (_, i) => (
-      <>
-        {Component && <Component key={i} {...data[i]} />}
-      </>
-    ))
-  )
-
-  if (element && length) return (
-    Array.from({ length: length }, (_, i) => (
-      <>
-        {element && element}
-      </>
-    ))
-  )
-}
+const ComponentMapper = ({ Component, data }: mapperProps) => (
+  data.map((_, i) => <Component key={i} {...data[i]} />)
+)
 export default ComponentMapper;

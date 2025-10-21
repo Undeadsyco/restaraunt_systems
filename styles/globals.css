@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* Optional: remove any default margin */
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -20,6 +26,7 @@
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  color: black;
 }
 
 body {
@@ -36,6 +43,14 @@ body {
 }
 
 @layer components {
+  .link-btn {
+    @apply
+      inline-flex
+      w-full
+      h-full
+      items-center
+      justify-center
+  }
 
   .bordered {
     @apply
@@ -57,5 +72,25 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .flex-center {
+    @apply
+    flex 
+    items-center 
+    justify-center
+  }
+
+  .subgrid {
+    @apply
+    grid
+    grid-cols-subgrid
+    grid-rows-subgrid
+  }
+
+  .span-full {
+    @apply
+    col-span-full
+    row-span-full
   }
 }

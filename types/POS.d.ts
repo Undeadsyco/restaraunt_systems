@@ -1,83 +1,5 @@
 declare namespace POS {
-
-  namespace Data {
-    interface IAddress {
-      street: string;
-      city: string;
-      state: string;
-      zip: string;
-    }
-
-    interface IUser {
-      _id?: IDType;
-      name: string;
-      email: string;
-      number: string | null;
-      password: string;
-      address: IAddress[] | null;
-      birthdate: Date | null;
-    }
-
-    interface IEmployee extends IUser {
-      emp_id: string;
-      start_date: Date;
-      end_date: Date | null;
-      hourly_rate: number;
-      position: "Crew" | "Shift" | "Asst" | "Mana";
-      employeed: boolean;
-      clocked_in: boolean;
-      on_break: boolean;
-    }
-
-    interface IDough {
-      _id?: IDType;
-      name: string;
-      weight: number;
-      measurement: string;
-    };
-
-    interface ISection {
-      _id?: IDType;
-      name: string;
-      pizzas: (IDType)[];
-    };
-
-    interface IPrice {
-      dough: IDType;
-      price: number;
-    };
-
-    interface IPizza {
-      _id?: IDType;
-      name: string;
-      section: IDType;
-      toppings: (IDType)[];
-      prices: IPrice[];
-    };
-
-    interface IPortion {
-      size: IDType;
-      amount: number;
-    };
-
-    interface ITopping {
-      _id?: IDType;
-      name: string;
-      type: string;
-      measurement: string;
-      price: number;
-      amount_per_size: IPortion[]
-    };
-  }
-
-  namespace Props {
-    type PosComponent = {
-      state: POS.Reducer.PosState;
-      dispatch: Dispatch<POS.Reducer.PosAction>;
-    }
-  }
-
-  namespace Reducer {
+  namespace Order {
     type ModificationItem = {
       parent: string;
       type: "modification",
@@ -100,72 +22,77 @@ declare namespace POS {
       amount: number
     };
 
-    type Portions = ("whole" | "halfs" | "thirds" | "forths");
-
-    type WholeList = [Types.IDType];
-    type HalfsList = [Types.IDType, Types.IDType];
-    type ThirdsList = [Types.IDType, Types.IDType, Types.IDType];
-    type ForthsList = [Types.IDType, Types.IDType, Types.IDType, Types.IDType];
-
-    type PizzaItem<P extends Portions> = {
-      type: "pizza"
-      size: Types.IDType;
-      portion: P;
-      pizzas: P extends "whole" ? WholeList : P extends "halfs" ? HalfsList : P extends "thirds" ? ThirdsList : ForthsList;
-      modifications: Modification[]
+    type PaymentItem = {
+      type: "payment";
+      source: ("Card" | "Cash");
+      value: number;
     }
 
-    type defaultOrderItem = {
+    type PizzaItem = {
       id: string;
-      // type: T extends "pizza" ? "pizza" : T extends "side" ? "side" : T extends "salad" ? "salad" : "toppings";
-      // item: Types.IDType;
-      // size: T extends "pizza" ? POS.Types.IDType : undefined;
-      // modifications: T extends "pizza" ? ModificationItem[] : undefined;
+      size: string;
+      name: string;
+      modifications: ModificationItem[]
       comments: CommentItem[];
       discount?: DiscountItem,
       price: number;
     }
 
-    type OrderItem<T extends ("pizza" | "side" | "salad" | "toppings") = "pizza"> = defaultOrderItem & (T extends "pizza"
-      ? PizzaItem<Portions>
-      : null)
-
-    type order = {
-      selectedItem?: OrderItem<("pizza" | "side" | "salad" | "toppings")> | ModificationItem | CommentItem | DiscountItem;
+    type Order = {
+      selectedItem?: OrderItem | ModificationItem | CommentItem | DiscountItem | PaymentItem;
       toppingMod?: "extra" | "less";
       portion?: "halfs" | "thirds" | "forths";
       name?: string;
-      items: OrderItem[];
-      itemIndex: number
-      price: number;
+      items: PizzaItem[];
+      itemIndex: number;
+      subTotal: number;
+      tax: number;
+      total: number;
+      payments: PaymentItem[];
+      change: number;
+      taxExempt: boolean;
     }
+  }
+
+  namespace Reducer {
+
+    type Employee = Omit<DataBase.People.IEmployee, (
+      "age" |
+      "number" |
+      "birthdate" | 
+      "address" |
+      "ssn" |
+      "emergency_contacts" |
+      "pos_info" | 
+      "office_info"
+    )>
 
     type PosState = {
-      dough: Data.IDough[];
-      sections: Data.ISection[];
-      pizzas: Data.IPizza[];
-      toppings: Data.ITopping[];
+      user: Employee | undefined;
       currentSize: string;
-      currentPizza: string;
-      toppingPreview: Types.IDType[];
-      orders: order[];
+      currentPizza: (Omit<DataBase.Menu.IPizza, "toppings"> & { toppings: DataBase.Menu.ITopping[] }) | undefined;
+      orders: Order.Order[];
       orderIndex: number;
-      views: {
-        main: "Menu" | "Comments" | "Discounts";
-        menu: "Traditional" | "Toppings" | "Specials" | "Stuffed" | "AOS";
-      },
       modal: {
         open: boolean;
-        err: { display: boolean, message: string };
-        keyboard: { display: boolean; action: string;  };
-        numberpad: { display: boolean; type: ("whole" | "fractional"); action: string; data: Object<any> };
+        err: {
+          display: boolean,
+          message: string
+        };
+        keyboard: {
+          display: boolean;
+          action: string;
+        };
+        numberpad: {
+          display: boolean;
+          type: ("whole" | "partcial" | "percentage");
+          action: string;
+          name: string;
+          amount: number;
+        };
       };
     }
 
     type PosAction = { type: string; data?: any }
-  }
-
-  namespace Types {
-    type IDType = (import("mongoose").Types.ObjectId | string);
   }
 }

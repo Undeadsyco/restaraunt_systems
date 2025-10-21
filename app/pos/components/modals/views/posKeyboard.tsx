@@ -1,7 +1,8 @@
 import { KeyPad } from "@/app/components";
 import { Formik, FormikProps } from "formik"
 import { PosBtn } from "../../buttons";
-import { ChangeEvent, MouseEvent } from "react";
+import { MouseEvent, useContext } from "react";
+import { PosContext } from "@/utils/PosContext";
 
 const KeyboardForm = ({ values, handleSubmit, handleReset, setFieldValue }: FormikProps<{ text: string }>) => {
   const handleChange = (e: MouseEvent<HTMLButtonElement>) => {
@@ -48,25 +49,26 @@ const KeyboardForm = ({ values, handleSubmit, handleReset, setFieldValue }: Form
   )
 }
 
-const Keyboard = ({ state, dispatch }: POS.Props.PosComponent) => {
+const Keyboard = () => {
+  const { state: { modal: { keyboard }, orders, orderIndex }, dispatch } = useContext(PosContext)!;
   const setInitialValue = () => {
-    switch (state.modal.keyboard.action) {
-      case "SET_ORDER_NAME": return ({ text: state.orders[state.orderIndex].name ?? "" });
+    switch (keyboard.action) {
+      case "SET_ORDER_NAME": return ({ text: orders[orderIndex].name ?? "" });
       default: return ({ text: "" });
     }
   }
 
   return (
-    !state.modal.keyboard.display ? null : (
+    !keyboard.display ? null : (
       <Formik
         initialValues={setInitialValue()}
         onSubmit={(values, actions) => {
-          switch (state.modal.keyboard.action) {
-            case "SET_ORDER_NAME": 
-            dispatch({ type: state.modal.keyboard.action, data: values.text });
-            break;
-          case "ADD_COMMENT":
-            dispatch({ type: state.modal.keyboard.action, data: { name: "Custom", message: values.text } });
+          switch (keyboard.action) {
+            case "SET_ORDER_NAME":
+              dispatch({ type: keyboard.action, data: values.text });
+              break;
+            case "ADD_COMMENT":
+              dispatch({ type: keyboard.action, data: { name: "Custom", message: values.text } });
           }
           actions.resetForm();
         }}

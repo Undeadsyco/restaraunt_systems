@@ -1,20 +1,21 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DateTime = ({className }: { className: string }) => {
-  let date = new Date
+  let date = new Date();
   const [convertedDate, setConvertedDate] = useState<string>(date.toLocaleDateString());
   const [convertedTime, setConvertedTime] = useState<string>(date.toLocaleTimeString().split(" ")[0].split(":").slice(0,2).join(":").concat(` ${date.toLocaleTimeString().split(" ")[1]}`));
-
-  useEffect(() => {
-    const updateTime = setInterval(() => {
+  
+  const updateTime = useRef(setInterval(() => {
       date = new Date();
       setConvertedDate(date.toLocaleDateString())
       setConvertedTime(date.toLocaleTimeString().split(" ")[0].split(":").slice(0,2).join(":").concat(` ${date.toLocaleTimeString().split(" ")[1]}`))
-    }, 1000);
+    }, 1000));
+
+  useEffect(() => {
     () => {
-      clearInterval(updateTime);
+      clearInterval(updateTime.current);
     }
   }, [])
 
