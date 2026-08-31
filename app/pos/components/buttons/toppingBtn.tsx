@@ -3,23 +3,24 @@ import { useContext } from "react";
 import PosBtn from "./posBtn";
 import { PosContext } from "@/utils/PosContext";
 
-const ToppingBtn = ({ topping }: { topping?: DataBase.Menu.ITopping; }) => {
-  const { dispatch } = useContext(PosContext)!;
+const ToppingBtn = ({ topping }: { topping: DataBase.Menu.ITopping; }) => {
+  const { dispatch } = useContext(PosContext)
 
-  if (!topping) return <PosBtn className="topping-preview-btn" />
+  // const className = `;
+  // console.log('topping btn', className);
 
-  const className = topping.type === "sauce"
-    ? "sauce-btn"
-    : topping.type === "cheese"
-      ? "cheese-btn"
-      : topping.type === "meat"
-        ? "meat-btn"
-        : topping.type === "produce"
-          ? "produce-btn"
-          : "seasoning-btn";
+  const setClassName = (type: string) => {
+    switch (type) {
+      case "sauce": return "sauce-btn"
+      case "cheese": return "cheese-btn"
+      case "meat": return "meat-btn"
+      case "produce": return "produce-btn"
+      case "seasoning": return "seasoning-btn"
+    }
+  }
 
   return <PosBtn
-    className={className}
+    className={setClassName(topping.type.toLowerCase())}
     key={topping._id}
     text={topping.name}
     onClick={() => dispatch({ type: "MODIFY_ITEM", data: topping._id })}

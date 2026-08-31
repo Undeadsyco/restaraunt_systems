@@ -1,26 +1,30 @@
+"use client"
 // Components
 import Link from "next/link";
 import ToppingTypeContainer from "./toppingTypeContainer";
 import { PosBtn } from "@/app/pos/components/buttons";
+import { useContext } from "react";
+import { PosContext } from "@/utils/PosContext";
 
 
 
 const ToppingBtns = () => {
+  const { state } = useContext(PosContext);
 
   return (
-    <>
-      <ToppingTypeContainer className="row-span-2 grid-rows-2" type="sauce" />
-      <ToppingTypeContainer className="row-span-1 grid-rows-1" type="cheese" />
-      <ToppingTypeContainer className="row-span-1 grid-rows-1" type="seasoning" />
-      <ToppingTypeContainer className="row-span-2 grid-rows-2" type="meat" />
-      <ToppingTypeContainer className="row-span-3 grid-rows-3" type="produce">
-        <PosBtn
-          className="close-btn text-white"
-        >
-          <Link className="link-btn" href="/pos/main/menu">Back</Link>
-        </PosBtn>
-      </ToppingTypeContainer>
-    </>
+    <div className="col-span-6 grid grid-cols-6 row-span-3 grid-rows-3 gap-x-1 gap-y-3">
+      {state.toppingType === "Sauce" && <ToppingTypeContainer type="sauce" />}
+      {state.toppingType === "Cheese" && <ToppingTypeContainer type="cheese" />}
+      {state.toppingType === "Seasoning" && <ToppingTypeContainer type="seasoning" />}
+      {state.toppingType === "Meat" && <ToppingTypeContainer type="meat" />}
+      {state.toppingType === "Produce" && <ToppingTypeContainer type="produce" />}
+
+      <PosBtn
+        className="close-btn text-white col-start-6 row-start-3"
+      >
+        <Link className="link-btn" href="/pos/main/menu">Back</Link>
+      </PosBtn>
+    </div>
   )
 }
 

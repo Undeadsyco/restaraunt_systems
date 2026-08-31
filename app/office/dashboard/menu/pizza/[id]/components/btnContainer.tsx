@@ -15,18 +15,13 @@ const BtnContainer = ({ editing, setEditing, handleReset, handleSubmit }: Props)
   const { id } = useParams();
   const router = useRouter();
 
-  const onGoBack = () => {
-    router.back();
-    router.refresh();
-  }
-
   return (
     <div className="flex-center items center pb-2">
       <div className="w-1/4 flex justify-between">
         <Btn {...{
           className: "bordered px-6 bg-white",
           text: editing ? "Cancel" : "Back",
-          onClick: editing ? handleReset : onGoBack,
+          onClick: editing ? handleReset : () => router.back(),
         }} />
         <Btn {...{
           className: "bordered px-6 bg-white",

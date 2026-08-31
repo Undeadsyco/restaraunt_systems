@@ -51,7 +51,7 @@ const TableSection = ({ section, dough, pizzas, setModalProps }: TableSectionPro
             <span className="inline-flex w-[95%] justify-between">
               {dough.map((d) => (
                 <span key={d._id} className="bg-white flex flex-col justify-center py-1 px-2 bordered leading-none w-20">
-                  ${pizza.prices.find(p => p.size === d._id)?.cost ?? "-"}
+                  ${pizza.prices.find(p => p.size === d._id)?.cost.toFixed(2) ?? "-"}
                 </span>
               ))}
             </span>

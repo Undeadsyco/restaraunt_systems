@@ -27,4 +27,10 @@ export default class CountersController {
     for (let i = id.length; i < 4; i += 1) { id = `0${id}`; }
     return id;
   }
+
+  public static async getNexOrderNumber() {
+    let id = (await CountersController.findAndIncrement("orders")).sequence_value.toString();
+    for (let i = id.length; i < 2; i += 1) { id = `0${id}`; }
+    return `1${id}`;
+  }
 }

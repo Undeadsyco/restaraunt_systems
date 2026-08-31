@@ -3,31 +3,35 @@
 import { createContext, Dispatch, ReactNode, useEffect, useReducer } from "react";
 import { v4 } from 'uuid';
 
-import * as reducerUtils from "@/utils/posReducerUtils";
+// import * as reducerUtils from "@/utils/posReducerUtils";
+import { PosProps } from "@/app/pos/layout";
+import {
+  isComment,
+  isDiscount,
+  isModification,
+  isPayment,
+  isPizza,
+  Order,
+  ItemComponent,
+  Pizza,
+} from "@/app/pos/classes";
+import { Modal } from "@/app/components";
+import { ErrorScreen, Notice, OrderSubmit } from "@/app/pos/components";
 
 const initialState: POS.Reducer.PosState = {
   user: undefined,
-  currentSize: "",
-  currentPizza: undefined,
-  orderIndex: 0,
-  orders: [{
-    selectedItem: undefined,
-    toppingMod: undefined,
-    name: undefined,
-    items: [],
-    itemIndex: 0,
-    subTotal: 0,
-    tax: 0,
-    total: 0,
-    payments: [],
-    change: 0,
-    taxExempt: false,
-  }],
+  sections: [],
+  dough: [],
+  pizzas: [],
+  toppings: [],
+  section: "",
+  pizza: "",
+  toppingType: "Sauce",
+  index: 0,
+  orders: [new Order()],
   modal: {
-    open: false,
-    err: { display: false, message: "" },
-    keyboard: { display: false, action: "" },
-    numberpad: { display: false, type: "whole", action: "", name: "", amount: 0 },
+    display: false,
+    child: undefined,
   },
 }
 
@@ -40,433 +44,295 @@ const reducer = (state: POS.Reducer.PosState, { type, data }: POS.Reducer.PosAct
       const user = state.user;
       if (user) user.employment.clocked_in = true;
 
-      return ({
-        ...state,
-        user: user
-      })
+      return ({ ...state, user: user })
     }
     case "CLOCK_OUT": {
       const user = state.user;
       if (user) user.employment.clocked_in = false;
 
-      return ({
-        ...state,
-        user: undefined
-      })
+      return ({ ...state, user: undefined })
     }
-    case "SET_SIZE": {
-      return ({
-        ...state,
-        currentSize: data,
-      });
+    case "SET_SECTION": {
+      return ({ ...state, section: data, })
     }
     case "SET_PIZZA": {
+      return { ...state, pizza: data, }
+    }
+    case "SET_TOPPING_TYPE": {
+      return ({ ...state, toppingType: data, })
+    }
+    case "SET_PORTIONING": {
+      const order = state.orders[state.index];
+      order.portion = data;
+      return ({ ...state, orders: state.orders.toSpliced(state.index, 1, order) })
+    }
+    case "CREATE_ORDER": {
       return ({
         ...state,
-        currentPizza: data,
+        orders: state.orders.toSpliced(state.orders.length, 0, new Order()),
+        index: state.orders.length,
       })
     }
-    case "CREATE_ORDER": return ({
-      ...state,
-      orders: [...state.orders, {
-        selectedItem: undefined,
-        toppingMod: undefined,
-        name: undefined,
-        items: [],
-        itemIndex: 0,
-        subTotal: 0,
-        tax: 0,
-        total: 0,
-        payments: [],
-        change: 0,
-        taxExempt: false,
-      }],
-      orderIndex: state.orders.length
-    });
-
-    case "SELECT_ORDER": return ({
-      ...state,
-      orderIndex: data
-    });
-
+    case "SELECT_ORDER": {
+      return ({ ...state, index: data, })
+    }
     case "DELETE_ORDER": {
-      const orders = [...state.orders];
-      if (state.orders.length > 1) { orders.splice(state.orderIndex, 1); }
-      else orders.splice(state.orderIndex, 1, {
-        selectedItem: undefined,
-        toppingMod: undefined,
-        name: undefined,
-        items: [],
-        itemIndex: 0,
-        subTotal: 0,
-        tax: 0,
-        total: 0,
-        payments: [],
-        change: 0,
-        taxExempt: false,
-      })
       return ({
         ...state,
-        orders: [...orders],
-        orderIndex: 0
-      })
-    }
-
-    case "SET_ORDER_NAME": return ({
-      ...state,
-      orders: state.orders.toSpliced(state.orderIndex, 1, {
-        ...state.orders[state.orderIndex],
-        name: data,
-      }),
-    })
-
-    case "SET_MODIFICATION": return ({
-      ...state,
-      orders: state.orders.toSpliced(state.orderIndex, 1, {
-        ...state.orders[state.orderIndex],
-        toppingMod: data,
-      }),
-    });
-
-    case "CREATE_ITEM": {
-      if (!state.currentPizza) return reducerUtils.setError(state, "Please Select Pizza")
-
-      const order = state.orders[state.orderIndex];
-      console.log(state.currentSize)
-      console.log(state.currentPizza.prices);
-      console.log(state.currentPizza.prices.filter(size => size.dough === state.currentSize));
-      // const newItem: POS.Order.PizzaItem = {
-      //   id: v4(),
-      //   portion: 'whole',
-      //   modifications: [],
-      //   comments: [],
-      //   type: "pizza",
-      //   pizzas: [pizza._id!],
-      //   price: pizza.prices![sizeIndex].price,
-      //   size: state.currentSize,
-      // }
-
-      // order.items = [...order.items, newItem];
-      // reducerUtils.calculatePrice(order);
-
-      return ({
-        ...state, orders: state.orders.toSpliced(state.orderIndex, 1, {
-          ...order,
-          // selectedItem: newItem,
-          itemIndex: order.items.length - 1,
-        })
+        orders: state.orders.length > 1
+          ? state.orders.toSpliced(state.index, 1)
+          : state.orders.toSpliced(state.index, 1, new Order()),
+        index: 0,
       })
     }
     case "SELECT_ITEM": {
-      // const order = state.orders[state.orderIndex];
-      // order.selectedItem = data;
-      // switch (data.type) {
-      //   case "pizza": {
-      //     state.toppingPreview = state.pizzas.find(pizza => pizza._id === state.currentPizza)!.toppings;
-      //     order.itemIndex = order.items.indexOf(data);
-      //     state.currentPizza = data._id
-      //     break;
-      //   }
-      //   default: {
-      //     order.itemIndex = order.items.indexOf(
-      //       order.items.find((i) => i.id === data.parent)!
-      //     )
-      //     break;
-      //   }
-      //   // Pizza Option
-      // }
+      const order = state.orders[state.index];
+      order.selected = data;
+      return ({
+        ...state,
+        pizza: isPizza(data) ? state.pizzas.find(p => p._id === data.item)!._id : state.pizza,
+        orders: state.orders.toSpliced(state.index, 1, order),
+      })
+    }
+    case "ADD_PIZZA": {
+      const pizza = state.pizzas.find(p => p._id === data.pizza);
+      const price = pizza?.prices.find(d => d.size === data.size);
+      if (!pizza) return ({ ...state });
+
+      const order = state.orders[state.index];
+      order.addItem({
+        item: pizza._id,
+        type: "pizza",
+        cost: price?.cost as number,
+        size: price?.size as string,
+        toppings: pizza.toppings.map(t => t.item) as string[],
+      });
+
+      return ({ ...state, orders: state.orders.toSpliced(state.index, 1, order) })
+    }
+    case "UP_SIZE": {
+      const order = state.orders[state.index];
+      const selected = order.selected
+      if (!selected || !(isPizza(selected))) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message="Either No Item Is Selected Or The Selected Item is Not A Pizza" />
+        }
+      });
+
+      const dough = state.dough.find(d => d._id === selected.size)!
+      const index = state.dough.indexOf(dough);
+      if (index + 1 === state.dough.length) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <Notice message="No larger size" />
+        }
+      });
+
+      selected.size = state.dough[index + 1]._id;
+
+      order.replaceItem(selected);
 
       return ({
         ...state,
-        // orders: state.orders.toSpliced(state.orderIndex, 1, order)
-      });
+        orders: state.orders.toSpliced(state.index, 1, order)
+      })
     }
-    case "CHANGE_SIZE": {
-      // const order = state.orders[state.orderIndex];
-
-      // if (order.selectedItem?.type !== "pizza") return reducerUtils.setOperationNotValidError(state);
-
-      // const item = order.selectedItem as POS.Order.PizzaItem
-      // let index = state.dough.indexOf(state.dough.find(d => d._id === item.size)!);
-
-      // if (data === "up" && index < state.dough.length - 1) index += 1;
-      // if (data === "down" && index > 0) index -= 1;
-
-      // item.size = state.dough[index]._id!;
-      // item.price = state.pizzas.find(p => p._id === item.pizzas[0])!.prices![index].price;
-
-      // order.items = order.items.toSpliced(order.itemIndex, 1, item)
-      // reducerUtils.calculatePrice(order);
-
-      return ({ 
-        ...state, 
-        // orders: state.orders.toSpliced(state.orderIndex, 1, order)
+    case "DOWN_SIZE": {
+      const order = state.orders[state.index];
+      const selected = order.selected;
+      if (!selected || !(isPizza(selected))) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message="Either No Item Is Selected Or The Selected Item is Not A Pizza" />
+        }
       });
+
+      const dough = state.dough.find(d => d._id === selected.size)!
+      const index = state.dough.indexOf(dough);
+      if (index - 1 < 0) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <Notice message="No larger size" />
+        }
+      });
+
+      selected.size = state.dough[index - 1]._id;
+
+      order.replaceItem(selected);
+
+      return ({
+        ...state,
+        orders: state.orders.toSpliced(state.index, 1, order)
+      })
     }
     case "MODIFY_ITEM": {
-      // const order = state.orders[state.orderIndex];
+      const order = state.orders[state.index];
+      const item = order.selected;
 
-      // if (!order.selectedItem) return reducerUtils.setError(state, "Please Add Pizza To Order Before Modifying");
-      // if (order.selectedItem.type !== "pizza") return reducerUtils.setOperationNotValidError(state);
-
-      // const orderItem = order.selectedItem as POS.Order.PizzaItem;
-      // const pizza = state.pizzas.find(pizza => pizza._id === state.currentPizza)!;
-      // const topping = state.toppings.find(t => t._id === data);
-
-      // const onPizza = pizza.toppings.includes(data);
-      // const inModifications = orderItem.modifications.find(m => m.topping === data);
-      // const index = inModifications
-      //   ? orderItem.modifications.indexOf(orderItem.modifications.find(m => m.topping === data)!)
-      //   : undefined;
-
-      // switch (order.toppingMod) {
-      //   case "extra": {
-      //     if (onPizza || inModifications) {
-      //       orderItem.modifications.splice(index ? index + 1 : orderItem.modifications.length, 0,
-      //         { parent: orderItem.id, type: "modification", modification: "extra", topping: data, price: topping!.price }
-      //       );
-      //     } else {
-      //       orderItem.modifications.splice(orderItem.modifications.length, 0,
-      //         { parent: orderItem.id, type: "modification", modification: "add", topping: data, price: topping!.price },
-      //         { parent: orderItem.id, type: "modification", modification: "extra", topping: data, price: topping!.price }
-      //       );
-      //     }
-      //     break;
-      //   }
-      //   case "less": {
-      //     if (onPizza || inModifications) {
-      //       orderItem.modifications.splice(index ? index + 1 : orderItem.modifications.length, 0,
-      //         { parent: orderItem.id, type: "modification", modification: "less", topping: data, price: 0 }
-      //       );
-      //     } else {
-      //       orderItem.modifications.splice(orderItem.modifications.length, 0,
-      //         { parent: orderItem.id, type: "modification", modification: "add", topping: data, price: topping!.price },
-      //         { parent: orderItem.id, type: "modification", modification: "less", topping: data, price: 0 }
-      //       );
-      //     }
-      //     break;
-      //   }
-      //   // Add or Remove
-      //   default: {
-      //     if (inModifications) {
-      //       orderItem.modifications = orderItem.modifications.filter(m => m.topping !== data);
-      //     } else if (onPizza) {
-      //       orderItem.modifications.push({ parent: orderItem.id, type: "modification", modification: "no", topping: data, price: 0 });
-      //     } else {
-      //       orderItem.modifications.push({ parent: orderItem.id, type: "modification", modification: "add", topping: data, price: topping!.price });
-      //     }
-      //     break;
-      //   }
-      // }
-
-      // order.toppingMod = undefined;
-
-      // reducerUtils.calculatePrice(order);
-
-      return ({ 
-        ...state, 
-        // orders: state.orders.toSpliced(state.orderIndex, 1, order) 
+      if (!item || !(isPizza(item))) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message="Please Select An Item before Modifying Toppings" />
+        }
       });
-    }
 
-    case "ADD_COMMENT": {
-      const order = state.orders[state.orderIndex];
+      const topping = state.toppings.find(t => t._id === data);
+      if (!topping) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message="No Topping Found In Modification" />
+        }
+      });
 
-      if (!order.selectedItem) return reducerUtils.setError(state, "Please Select An Item")
-      if (order.selectedItem?.type !== "pizza") return reducerUtils.setOperationNotValidError(state)
+      let mod = item.findModification(data);
 
-      const comment: POS.Order.CommentItem = {
-        parent: order.selectedItem.id,
-        type: "comment",
-        name: data.name,
-        message: data.name === "Custom" ? data.message : data.name,
-      }
+      if (mod) {
+        if (!order.portion) item.removeModification(mod);
+        else item.addModification(topping, order.portion);
+      } else item.addModification(topping, order.portion);
 
-      order.selectedItem.comments.push(comment);
 
-      state.orders.splice(state.orderIndex, 1, order);
+      order.replaceItem(item);
+      order.portion = undefined;
+
       return ({
         ...state,
-        orders: state.orders.toSpliced(state.orderIndex, 1, order),
+        orders: state.orders.toSpliced(state.index, 1, order),
+      })
+    }
+    case "ADD_COMMENT": {
+      const order = state.orders[state.index];
+      const item = order.selected;
+      if (!item || !(isPizza(item))) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message="Please Select An Item before Applying Comments" />
+        }
+      });
+
+      item.addComent(data);
+      order.replaceItem(item);
+
+      return ({
+        ...state,
+        orders: state.orders.toSpliced(state.index, 1, order),
       })
     }
     case "ADD_DISCOUNT": {
-      const order = state.orders[state.orderIndex];
+      const order = state.orders[state.index];
+      const item = order.selected;
 
-      if (order.selectedItem?.type !== "pizza") return reducerUtils.setOperationNotValidError(state);
-      if (order.selectedItem.discount) return reducerUtils.setError(state, "Item Is Already Discounted");
-      if (order.selectedItem.price < data.amount) return reducerUtils.setError(state, "Cannot set discount greater than pizza price")
-
-      order.selectedItem.discount = {
-        type: "discount",
-        parent: order.selectedItem.id,
-        name: data.name,
-        amount: data.amount
-      };
-      reducerUtils.calculatePrice(order);
-
-      return ({
+      if (!item || !(isPizza(item))) return ({
         ...state,
-        orders: state.orders.toSpliced(state.orderIndex, 1, order),
         modal: {
-          ...state.modal,
-          open: false,
-          numberpad: {
-            display: false,
-            type: "whole",
-            action: "",
-            name: "",
-            amount: 0,
-          }
+          display: true,
+          child: <ErrorScreen message="Please Select An Item before Applying Discount" />
         }
-      })
-    }
+      });
 
-    case "DELETE_SELECTED": {
-      const order = state.orders[state.orderIndex];
-
-      if (!order.selectedItem) return reducerUtils.setError(state, "Please Select An Item To Delete")
-
-      const orderItem = order.items[order.itemIndex];
-      switch (order.selectedItem.type) {
-        case "modification": {
-          const index = orderItem.modifications.indexOf(order.selectedItem);
-          const mod = orderItem.modifications.splice(index, 1);
-          if (mod[0].modification === "add") {
-            orderItem.modifications = orderItem.modifications.filter(m => m.topping !== mod[0].topping)
-          }
-          order.items = order.items.toSpliced(order.itemIndex, 1, orderItem);
-          order.selectedItem = orderItem;
-          break;
-        }
-        case "comment": {
-          const index = orderItem.comments.indexOf(order.selectedItem)
-          orderItem.comments.splice(index, 1);
-          order.items = order.items.toSpliced(order.itemIndex, 1, orderItem);
-          order.selectedItem = orderItem;
-          break;
-        }
-        case "discount": {
-          orderItem.discount = undefined;
-          order.items = order.items.toSpliced(order.itemIndex, 1, orderItem);
-          order.selectedItem = orderItem;
-          break;
-        }
-        case "payment": {
-          const index = order.payments.indexOf(order.selectedItem);
-          order.payments = order.payments.toSpliced(index, 1);
-          const currentPayment = order.payments.reduce((acc, current) => acc + current.value, 0);
-          currentPayment > order.total ? order.change = currentPayment - order.total : order.change = 0;
-          break;
-        }
-        // Pizza Option
-        default: {
-          order.items = order.items.toSpliced(order.itemIndex, 1)
-          order.itemIndex = order.items.length > 0 ? order.items.length - 1 : 0;
-          order.selectedItem = order.items[order.itemIndex];
-          break;
-        }
-      }
-
-      reducerUtils.calculatePrice(order);
+      item.addDiscount(
+        data.text,
+        data.category === "percentage"
+          ? item.price * (+data.amount / 100)
+          : +data.amount
+      );
+      order.replaceItem(item);
 
       return ({
         ...state,
-        orders: state.orders.toSpliced(state.orderIndex, 1, order)
+        orders: state.orders.toSpliced(state.index, 1, order),
       })
     }
+    case "DELETE_ITEM": {
+      const order = state.orders[state.index];
+      const item = order.selected;
+      if (!item) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <Notice message="Please Select An Item before Deleting" />
+        }
+      });
 
+      if (isPizza(item)) order.removeItem();
+      else if (isPayment(item)) order.removePayment(item);
+      else {
+        const pizza = order.items.find(i => i === (item as ItemComponent).parent);
+        if (!pizza) return ({ ...state });
+
+        if (isModification(item)) {
+          (pizza as Pizza).removeModification(item);
+        }
+        if (isComment(item)) {
+          pizza.removeComment(item);
+        }
+        if (isDiscount(item)) {
+          pizza.removeDiscount();
+        }
+
+        order.replaceItem(pizza);
+      }
+
+      return ({
+        ...state,
+        orders: state.orders.toSpliced(state.index, 1, order)
+      });
+    }
     case "ADD_PAYMENT": {
-      const order = state.orders[state.orderIndex];
-      let currentPayment = order.payments.reduce((acc, current) => {
-        return acc + current.value;
-      }, 0);
-
-      if (currentPayment > order.total) {
-        return reducerUtils.setError(state, "Payment already exceeded total");
-      }
-
-      order.payments.push({ type: "payment", ...data });
-      currentPayment += data.value;
-
-      if (currentPayment > order.total) {
-        order.change = parseFloat((currentPayment - order.total).toFixed(2));
-      }
-
+      const order = state.orders[state.index];
+      if (order.items.length === 0) return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <Notice message="Add an item to order before adding payment" />
+        }
+      })
+      order.addPayment(data.source, +data.amount);
       return ({
         ...state,
-        orders: state.orders.toSpliced(state.orderIndex, 1, order)
+        orders: state.orders.toSpliced(state.index, 1, order),
+        modal: order.status === "closed" ? {
+          display: true,
+          child: <OrderSubmit />
+        } : state.modal
       })
     }
-    case "CLOSE_CHECK": {
-      // if ()
+    case "OPEN_MODAL": {
       return ({
-        ...state
+        ...state,
+        modal: {
+          display: true,
+          child: data,
+        }
       })
     }
-
-    case "SET_ERROR": return reducerUtils.setError(state, data);
-    case "CLEAR_ERR": {
-      const shouldStayOpen = state.modal.numberpad.display || state.modal.keyboard.display;
-      return { ...state, modal: { ...state.modal, open: shouldStayOpen, err: { display: false, message: "" } } }
-    }
-    case "OPEN_KEYBOARD": return ({
-      ...state,
-      modal: {
-        ...state.modal,
-        open: true,
-        keyboard: {
-          display: true,
-          action: data,
-        }
-      }
-    });
-    case "CLOSE_KEYBOARD": return ({
-      ...state,
-      modal: {
-        ...state.modal,
-        open: false,
-        keyboard: {
+    case "CLOSE_MODAL": {
+      return ({
+        ...state,
+        modal: {
           display: false,
-          action: "",
+          child: undefined,
         }
-      }
-    });
-    case "OPEN_NUMBERPAD": return ({
-      ...state,
-      modal: {
-        ...state.modal,
-        open: true,
-        numberpad: {
-          display: true,
-          type: data.type,
-          action: data.action,
-          name: data.name,
-          amount: (state.orders[state.orderIndex].selectedItem as POS.Order.PizzaItem).price
-        }
-      }
-    });
-    case "CLOSE_NUMBERPAD": return ({
-      ...state,
-      modal: {
-        ...state.modal,
-        open: false,
-        numberpad: {
-          display: false,
-          type: "whole",
-          action: "",
-          name: "",
-          amount: 0,
-        }
-      }
-    });
-    case "CLOSE": return ({
-      ...state,
-      user: undefined
-    })
-    default: {
-      return ({ ...state })
+      })
     }
+    case "SET_ERROR": {
+      return ({
+        ...state,
+        modal: {
+          display: true,
+          child: <ErrorScreen message={data} />
+        }
+      })
+    }
+    default: return ({ ...state });
   }
 }
 
@@ -475,12 +341,27 @@ export const PosContext = createContext<{ state: POS.Reducer.PosState, dispatch:
   dispatch: () => { },
 });
 
-export default function PosProvider({ children }: { children: ReactNode | ReactNode[] }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+type ProviderProps = { props: PosProps, className: string, children: ReactNode | ReactNode[] }
+export default function PosProvider({ props, className, children }: ProviderProps) {
+  const [state, dispatch] = useReducer(
+    reducer,
+    { ...initialState },
+    (state: POS.Reducer.PosState) => ({
+      ...state,
+      ...props,
+      section: props.sections[0]._id,
+      pizza: props.pizzas.filter(p => p.section === props.sections[0]._id)[0]._id,
+    })
+  );
+
+  // console.log("state", state)
 
   return (
     <PosContext.Provider value={{ state, dispatch }}>
-      {children}
+      <main className={className}>
+        {state.modal.display && <Modal>{state.modal.child}</Modal>}
+        {children}
+      </main>
     </PosContext.Provider>
   )
 }

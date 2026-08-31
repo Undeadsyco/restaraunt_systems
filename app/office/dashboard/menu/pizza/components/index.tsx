@@ -31,6 +31,10 @@ export default function PizzaTable({ sections, dough, pizzas }: PizzaTableProps)
   const [{ display, id }, setModalProps] = useState<ModalProps>({ display: false, id: "" });
 
   useEffect(() => {
+    router.refresh();
+  }, []);
+
+  useEffect(() => {
     setSectionList(sections.filter(s => filters.section ? s.name === filters.section : true));
     if (filters.pizzas === "name") {
       setPizzaList(pizzas.toSorted((a, b) => filters.order === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)))

@@ -14,7 +14,7 @@ const MenuActions = () => {
     <>
       {/* Group 1 */}
       <div className="row-span-3 grid grid-rows-3 grid-cols-3 gap-x-1 gap-y-3 text-sm text-white">
-        <PosBtn text="Delete" onClick={() => dispatch({ type: "DELETE_SELECTED" })} />
+        <PosBtn text="Delete" onClick={() => dispatch({ type: "DELETE_ITEM" })} />
         <PosBtn text="Delete All" onClick={() => dispatch({ type: "DELETE_ORDER" })} />
         <PosBtn text="Quantity" />
         <PosBtn text="Order Lookup" />

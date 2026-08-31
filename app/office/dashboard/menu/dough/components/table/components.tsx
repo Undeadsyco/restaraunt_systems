@@ -9,7 +9,7 @@ import { IconBtn } from "@/app/office/components";
 import { Check, Pen, Trash, X } from "lucide-react";
 // Types
 import { SetDeleteModalProps } from "@/app/office/components/deleteModal";
-import { StateAction, SubmitFunction } from "@/types";
+import { StateAction, FormikFunction } from "@/types";
 
 export const TH = ({ text }: { text: string }) => (
   <th className="border-b-2 border-green-800 h-full">
@@ -40,7 +40,7 @@ type DoughItemProps = {
 export const DoughItem = ({ dough, setList, setModalProps }: DoughItemProps) => {
   const [editing, setEditing] = useState(false);
 
-  const onEdit: SubmitFunction<DataBase.Menu.IDough> = async (values, actions) => {
+  const onEdit: FormikFunction<DataBase.Menu.IDough> = async (values, actions) => {
     try {
       const res = await axios.put(`/office/api/dough`, values)
       const data = await res.data;

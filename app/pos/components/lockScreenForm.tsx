@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { object, string } from "yup";
 // Components
 import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
-import { NumberPad } from "@/app/components";
+import NumberPad from "./numberpadForm/numberPad";
 import { PosBtn } from "./buttons";
 // Context
 import { PosContext } from "@/utils/PosContext";
@@ -40,7 +40,8 @@ export default function LockScreenForm() {
         return;
       }
       if (err instanceof AxiosError) {
-        actions.setFieldError("password", err.response?.data.message);
+        dispatch({ type: "SET_ERROR", data: err.response?.data.message })
+        // actions.setFieldError("password", );
         return;
       }
       if (err instanceof Error) {
@@ -72,7 +73,7 @@ export default function LockScreenForm() {
               } else setFieldValue("id", `${values.id}${input}`);
             }}
             onCancel={handleReset}
-            onSubmit={() => { handleSubmit() }}
+            onSubmit={() => handleSubmit()}
             CustomBtn={PosBtn}
           />
 

@@ -12,7 +12,7 @@ const SizeChangeBtn = ({ text }: BtnProps) => {
     <PosBtn
       className="change-size-btn"
       text={`${text} Size`}
-      onClick={() => dispatch({ type: "CHANGE_SIZE", data: text?.toLowerCase() })}
+      onClick={() => dispatch({ type: `${text!.toUpperCase()}_SIZE` })}
     />
   )
 }

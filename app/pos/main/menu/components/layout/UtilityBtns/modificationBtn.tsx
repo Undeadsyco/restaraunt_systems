@@ -12,7 +12,7 @@ const ModificationBtn = ({ text }: BtnProps) => {
     <PosBtn
       className="topping-modify-btn"
       text={text}
-      onClick={() => dispatch({ type: "SET_MODIFICATION", data: text?.toLowerCase() })}
+      onClick={() => dispatch({ type: "SET_PORTIONING", data: text })}
     />
   )
 }

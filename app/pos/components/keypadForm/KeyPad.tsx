@@ -1,6 +1,6 @@
 import { Btn } from "@/app/components"
 import { EventHandler, MouseEventHandler } from "react";
-import { PosBtn } from "../pos/components/buttons";
+import { PosBtn } from "../buttons";
 import { v4 } from "uuid";
 
 type KeyPadProps = {

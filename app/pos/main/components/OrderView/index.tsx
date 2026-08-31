@@ -7,22 +7,11 @@ import OrderItem from "./OrderItem";
 import { PosBtn } from "@/app/pos/components/buttons";
 // Context
 import { PosContext } from "@/utils/PosContext";
+import { KeypadForm } from "@/app/pos/components";
+import axios from "axios";
 
 const OrderView = () => {
   const { state, dispatch } = useContext(PosContext)!;
-
-  const { selectedItem } = state.orders[state.orderIndex];
-
-  const [order, setOrder] = useState(state.orders[state.orderIndex]);
-  const [payment, setPayment] = useState<number>(order.payments.reduce((acc, current) => acc + current.value, 0));
-
-  useEffect(() => {
-    setOrder(state.orders[state.orderIndex]);
-  }, [state.orders, state.orderIndex])
-
-  useEffect(() => {
-    setPayment(order.payments.reduce((acc, current) => acc + current.value, 0));
-  }, [order]);
 
   return (
     <div className="grid grid-rows-12 gap-2 row-span-9 bg-white text-black p-1 rounded-2xl">
@@ -32,7 +21,7 @@ const OrderView = () => {
           <PosBtn
             key={i}
             text={`order ${i + 1}`}
-            className={`bordered ${state.orderIndex === i ? "btn-default-secondary" : ""}`}
+            className={`bordered ${state.index === i ? "btn-default-secondary" : ""}`}
             onClick={() => dispatch({ type: "SELECT_ORDER", data: i })}
           />
         ))}
@@ -47,26 +36,35 @@ const OrderView = () => {
 
       {/* Order Container */}
       <div className="bordered row-span-8 flex flex-col p-2 overflow-auto">
-        <button type="button" onClick={() => dispatch({ type: "OPEN_KEYBOARD", data: "SET_ORDER_NAME" })}>
+        <button
+          type="button"
+          onClick={() => dispatch({
+            type: "OPEN_MODAL",
+            data: <KeypadForm {...{
+              onSubmit: (values) => dispatch({ type: "SET_NAME", data: values.value }),
+              onReset: () => dispatch({ type: "CLOSE_MODAL" })
+            }} />
+          })}
+        >
           <h2 className="text-center">
-            {order.name ? order.name : "Order"}
+            {state.orders[state.index].name ?? "Order"}
           </h2>
         </button>
 
         {/* Order Items */}
-        {order.items.map((orderItem: POS.Order.PizzaItem, i) => (
+        {state.orders[state.index].items.map((orderItem: any, i) => (
           <OrderItem {...{ orderItem }} key={i} />
         ))}
 
         {/* payments */}
-        {order.payments.length > 0 && (
+        {state.orders[state.index].hasPayments() && (
           <div className="mt-10">
             <h3>Payments:</h3>
-            {order.payments.map((p) => (
+            {state.orders[state.index].payments.map((p) => (
               <p
                 key={v4()}
                 tabIndex={1}
-                className={`orderItem text-red-500 text-xl font-semibold ${selectedItem === p && "orderItemActive"} cursor-pointer`}
+                className={`orderItem text-red-500 text-xl font-semibold ${state.orders[state.index].selected === p && "orderItemActive"} cursor-pointer`}
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -74,38 +72,37 @@ const OrderView = () => {
                 }}
               >
                 <span>{p.source}: </span>
-                <span>${p.value}</span>
+                <span>${p.amount}</span>
               </p>
             ))}
           </div>
         )}
       </div>
 
-
       {/* Price Container */}
       <div className="bordered row-span-2 text-sm p-2 grid grid-cols-2 grid-rows-3">
         <p className="flex justify-between px-2" >
           <span>SubTotal: </span>
-          <span>${order.subTotal.toFixed(2)}</span>
+          <span>${state.orders[state.index].subtotal.toFixed(2)}</span>
         </p>
         <p className="flex justify-between px-2" >
           <span>Tax: </span>
-          <span>${order.tax.toFixed(2)}</span>
+          <span>${state.orders[state.index].tax.toFixed(2)}</span>
         </p>
         <p className="flex justify-between px-2" >
           <span>Total: </span>
-          <span>${order.total.toFixed(2)}</span>
+          <span>${state.orders[state.index].total.toFixed(2)}</span>
         </p>
-        {order.payments.length > 0 && (
+        {state.orders[state.index].hasPayments() && (
           <p className="flex justify-between px-2">
             <span>Payment: </span>
-            <span>${order.payments.reduce((acc, current) => acc + current.value, 0).toFixed(2)}</span>
+            <span>${state.orders[state.index].paid.toFixed(2)}</span>
           </p>
         )}
-        {order.change > 0 && (
+        {state.orders[state.index].change > 0 && (
           <p className="flex justify-between px-2">
             <span>Change: </span>
-            <span>${order.change}</span>
+            <span>${state.orders[state.index].change.toFixed(2)}</span>
           </p>
         )}
       </div>

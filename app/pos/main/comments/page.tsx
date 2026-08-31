@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { PosBtn } from "@/app/pos/components/buttons";
 // COntext
 import { PosContext } from "@/utils/PosContext";
+import { KeypadForm } from "../../components";
 
 const CommentBtn = ({ text, onClick }: { text: string, onClick: () => void }) => (
   <PosBtn
@@ -28,46 +29,56 @@ const CommentBtns = () => {
       <CommentRow>
         <CommentBtn
           text="Ask Me"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Ask Me" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Ask Me" })}
         />
         <CommentBtn
           text="Allergy Alert"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Allergy Alert" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Allergy Alert" })}
         />
         <CommentBtn
           text="Cold Crust"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Cold Crust" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Cold Crust" })}
         />
         <CommentBtn
           text="Double Wrapped"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Double Wrapped" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Double Wrapped" })}
         />
         <CommentBtn
           text="New Guest"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "New Guest" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "New Guest" })}
         />
       </CommentRow>
 
       <CommentRow>
         <CommentBtn
           text="Drive Thru"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Drive Thru" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Drive Thru" })}
         />
         <CommentBtn
           text="Make Now"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Make Now" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Make Now" })}
         />
         <CommentBtn
           text="Do Not Make"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "Do Not Make" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "Do Not Make" })}
         />
         <CommentBtn
           text="On The Side"
-          onClick={() => dispatch({ type: "ADD_COMMENT", data: { name: "On The Side" } })}
+          onClick={() => dispatch({ type: "ADD_COMMENT", data: "On The Side" })}
         />
         <CommentBtn
           text="Custom"
-          onClick={() => dispatch({ type: "OPEN_KEYBOARD", data: "ADD_COMMENT" })}
+          // TODO: implement custom comments
+          onClick={() => dispatch({
+            type: "OPEN_MODAL",
+            data: <KeypadForm {...{
+              onSubmit: (values, actions) => {
+                dispatch({ type: "ADD_COMMENT", data: values.value });
+                dispatch({ type: "CLOSE_MODAL" });
+              },
+              onReset: (values, actions) => dispatch({ type: "CLOSE_MODAL" }),
+            }} />
+          })}
         />
       </CommentRow>
     </>
