@@ -1,46 +1,32 @@
+"use client"
+// Dependencies
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 // Components
-import { PizzaPortionBtn, PizzaSection } from "./components";
-import { PosBtn } from "@/app/pos/components/buttons";
-import dbConnect from "@/lib/DBConnections/DBConnect";
-import { SectionController } from "@/lib/DBModels/controllers";
+import { PizzaItem, PizzaPortionBtn } from "./components";
+import { PizzaBtn, PosBtn, ToppingBtn } from "@/app/pos/components/buttons";
 // Types
-import Link from "next/link";
+import { PosContext } from "@/utils/PosContext";
+import { LinkBtn } from "@/app/components";
 
-const getSections = async () => {
-  const sections = await SectionController.getAll();
-  if (!sections) throw new Error("Unable to find sections");
-  
-  return JSON.stringify(sections.filter(s => s.name !== "Deals" && s.name !== "Stuffed"));
-}
-
-export default async function Menu() {
-  const sections: DataBase.Menu.ISection[] = JSON.parse(await getSections());
+export default function Menu() {
+  const { state } = useContext(PosContext);
 
   return (
-
     <>
-      <PizzaPortionBtn text="Half" />
-      <PizzaPortionBtn text="Thirds" />
-      <PizzaPortionBtn text="Quarters" />
+      <div className="col-span-6 col-start-3 grid grid-cols-3 gap-x-1">
+        <PizzaPortionBtn text="Half" />
+        <PizzaPortionBtn text="Thirds" />
+        <PizzaPortionBtn text="Quarters" />
+      </div>
 
-      <PosBtn
-        className="CYO-pizza-btn"
-        text="CYO"
-      />
-
-      {sections.map(section => (
-        <PizzaSection
-          key={section._id}
-          section={section}
-        />
-      ))}
-
-      <PosBtn
-        className="to-toppings-btn"
-      >
-        <Link className="link-btn" href="/pos/main/menu/toppings">Toppings</Link>
-      </PosBtn>
-
+      <div className="col-span-6 col-start-3 row-span-2 grid grid-cols-5 grid-rows-2 gap-1 gap-y-3">
+        {state.sections.find(section => section._id === state.section)?.pizzas.map(pizzaId => {
+          const pizza = state.pizzas.find(p => p._id === pizzaId)!;
+          return <PizzaBtn key={pizza._id} {...{ pizza, }} />
+        })}
+        <LinkBtn className="pos-btn to-toppings-btn col-start-5 row-start-2" href="menu/toppings">Toppings</LinkBtn>
+      </div>
     </>
   )
 }

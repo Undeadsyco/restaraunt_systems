@@ -11,13 +11,7 @@ const PosBtn = ({ className, type, text = "", onClick, children }: BtnProps) => 
       ? "text-sm"
       : "text-base";
 
-  
-  return (
-    <Btn
-      {...{ type, onClick, text, children }}
-      className={`pos-btn btn-default ${className} ${textSize}`}
-    />
-  );
+  return <Btn {...{ type, onClick, text, children, className: `pos-btn btn-default ${className} ${textSize}` }} />
 }
 
 export default PosBtn;

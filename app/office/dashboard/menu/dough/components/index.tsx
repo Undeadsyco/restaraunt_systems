@@ -11,7 +11,7 @@ import { DeleteModal } from "@/app/office/components";
 // Types
 import type { FormikHelpers } from "formik"
 import type { DeleteModalProps } from "@/app/office/components/deleteModal";
-import { SubmitFunction } from "@/types";
+import { FormikFunction } from "@/types";
 
 export type DoughFormValues = {
   "name": string;

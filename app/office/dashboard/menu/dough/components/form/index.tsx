@@ -7,7 +7,7 @@ import { Btn } from "@/app/components";
 import { CircleCheck, CircleX } from "lucide-react";
 // type
 import type { DoughFormValues } from "..";
-import { SubmitFunction } from "@/types";
+import { FormikFunction } from "@/types";
 import axios from "axios";
 
 type InputProps = { id: keyof Omit<DataBase.Menu.IDough, "_id">; className: string; }
@@ -31,7 +31,7 @@ type Props = {
 }
 
 export default function DoughForm({ setList }: Props) {
-  const onCreate: SubmitFunction<DoughFormValues> = async (values, actions) => {
+  const onCreate: FormikFunction<DoughFormValues> = async (values, actions) => {
     const res = await axios.post("/office/api/dough", values);
     const data = await res.data;
     if (res.status === 201) {

@@ -26,7 +26,7 @@ export default function PizzaForm({ pizza, sections, dough, toppings }: Data) {
     const res = await req.data;
 
     if (req.status === 200) {
-      actions.resetForm(res);
+      actions.resetForm({ values: res });
       alert("Update was successful");
     }
     actions.setSubmitting(false);

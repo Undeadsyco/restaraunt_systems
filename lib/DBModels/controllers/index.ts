@@ -5,4 +5,6 @@ export { default as DoughController } from "./Dough";
 export { default as SectionController } from "./Section";
 export { default as ToppingController } from "./Topping";
 export { default as PizzaController } from "./Pizza";
+
+export { default as OrderController } from "./Order";
 export { default as TimePunchController } from "./PunchTimes";

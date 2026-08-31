@@ -23,27 +23,27 @@ declare namespace DataBase {
       pizzas: string[];
     };
 
-    interface IPrice {
-      size: Types.IDType;
+    interface IPrice<Size = Types.IDType> {
+      size: Size;
       cost: number;
     };
 
-    interface IPortion {
-      sizes: Types.IDType[];
+    interface IPortion<Sizes = Types.IDType> {
+      sizes: Sizes[];
       portion: number;
     };
 
-    interface IToppingItem {
-      item: Types.IDType;
-      portions: IPortion[];
+    interface IToppingItem<Item = Types.IDType, Portions = IPortion> {
+      item: Item;
+      portions: Portions[];
     }
 
-    interface IPizza {
+    interface IPizza<Section = Types.IDType, Toppings = IToppingItem, Prices = IPrice> {
       _id: string;
       name: string;
-      section: Types.IDType;
-      toppings: IToppingItem[];
-      prices: IPrice[];
+      section: Section;
+      toppings: Toppings[];
+      prices: Prices[];
     };
 
     interface ITopping {
@@ -53,6 +53,44 @@ declare namespace DataBase {
       measurement: string;
       price: number;
     };
+  }
+
+  namespace Order {
+    interface Discount {
+      name: string;
+      amount: number;
+    }
+    interface Modification {
+      topping: Types.IDType;
+      type: POS.Types.modificationType;
+    }
+    interface Comment {
+      name: string;
+      message: string;
+    }
+    interface OrderedItem {
+      item: Types.IDType;
+      type: String;
+      modifications: Modification[];
+      comments: Comment[];
+      discount: Discount;
+    }
+
+    interface Payment {
+      source: "Cash" | "Card";
+      amount: number;
+    }
+
+    interface Order {
+      _id: string;
+      orderNumber: string;
+      name?: string;
+      type: POS.Types.orderType;
+      status: POS.Types.orderStatus;
+      items: OrderedItem[];
+      payments: Payment[]
+      date: Date;
+    }
   }
 
   namespace People {

@@ -6,7 +6,7 @@ export type stringifyKeys<T> = { [K in keyof T as string]: T[K] extends object ?
 
 export type StateAction<T> = Dispatch<SetStateAction<T>> 
 
-export type SubmitFunction<Values extends Object> = (values: Values, actions: FormikHelpers<Values>) => void;
+export type FormikFunction<Values extends Object> = (values: Values, actions: FormikHelpers<Values>) => void;
 
 export type BtnProps = {
   type?: "submit" | "reset" | "button" | undefined;
